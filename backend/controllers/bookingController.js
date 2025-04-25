@@ -1,8 +1,10 @@
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
+const { sendBookingConfirmationEmail } = require('../utils/email');
 
-exports.createBooking = async (req, res) => {
+exports.createBooking = async (req, res, next) => {
   const { eventId, seatsBooked, amountPaid, paymentMethod } = req.body;
+
   try {
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ msg: 'Event not found' });
@@ -13,7 +15,7 @@ exports.createBooking = async (req, res) => {
     );
     await event.save();
 
-    // Create a fake transaction ID for mock payment
+    // Create fake transaction ID
     const fakeTransactionId = `TXN_${Date.now()}`;
 
     const booking = new Booking({
@@ -23,13 +25,22 @@ exports.createBooking = async (req, res) => {
       amountPaid,
       paymentMethod,
       transactionId: fakeTransactionId,
-      paymentStatus: 'Paid'
+      paymentStatus: 'Paid',
     });
     await booking.save();
 
+    // Send booking confirmation email
+    const user = await User.findById(req.user.id);
+    await sendBookingConfirmationEmail(user.email, {
+      event: event.title,
+      seatsBooked,
+      amountPaid,
+      paymentStatus: 'Paid',
+    });
+
     res.status(201).json(booking);
   } catch (err) {
-    res.status(500).send('Server error');
+    next(err);
   }
 };
 

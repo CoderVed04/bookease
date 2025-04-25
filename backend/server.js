@@ -27,18 +27,18 @@ const io = socketIo(server, {
 
 // Socket.io Logic
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  console.log('User connected');
 
-  socket.on('selectSeat', (seatId) => {
-    socket.broadcast.emit('seatBlocked', seatId);
-  });
+  // Listen for seat selection events
+  socket.on('seatSelect', (data) => {
+    console.log('Seat selection: ', data);
 
-  socket.on('releaseSeat', (seatId) => {
-    socket.broadcast.emit('seatAvailable', seatId);
+    // Emit event to other clients to update the seat availability
+    socket.broadcast.emit('updateSeatStatus', data);
   });
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    console.log('User disconnected');
   });
 });
 

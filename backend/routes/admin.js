@@ -1,5 +1,6 @@
 const express = require('express');
-const { addEvent, updateEvent, deleteEvent, getAllBookings, getAllUsers } = require('../controllers/adminController');
+const { addEvent, updateEvent, deleteEvent, getAllUsers } = require('../controllers/adminController');
+const { getAllBookings } = require('../controllers/bookingController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const User = require('../models/User');

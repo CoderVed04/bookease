@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
+const { register, login } = require('../controllers/authController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const router = express.Router();
@@ -13,7 +13,7 @@ router.post(
     body('contactNumber').notEmpty().withMessage('Contact number is required')
   ],
   validate,
-  registerUser
+  register
 );
 
 router.post(
@@ -23,7 +23,7 @@ router.post(
     body('password').notEmpty().withMessage('Password is required')
   ],
   validate,
-  loginUser
+  login
 );
 
 module.exports = router;

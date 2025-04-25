@@ -18,6 +18,6 @@ router.post(
   createBooking
 );
 
-router.get('/my', auth, getUserBookings);
+router.get('/my',  getUserBookings);
 
 module.exports = router;
