@@ -3,24 +3,26 @@ const { addEvent, updateEvent, deleteEvent, getAllUsers } = require('../controll
 const { getAllBookings } = require('../controllers/bookingController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
-const User = require('../models/User');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
+const User = require('../models/User');
 const router = express.Router();
 
 const adminOnly = async (req, res, next) => {
-    try {
-      const user = await User.findById(req.user.id);
-      if (!user || !user.isAdmin) return res.status(403).json({ msg: 'Access denied' });
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user || !user.isAdmin) return res.status(403).json({ msg: 'Access denied' });
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 router.post(
   '/events',
   auth,
   adminOnly,
+  upload.single('image'),
   [
     body('title').notEmpty().withMessage('Title is required'),
     body('category').isIn(['Movie', 'Concert', 'Play']).withMessage('Valid category is required'),
@@ -32,7 +34,7 @@ router.post(
   addEvent
 );
 
-router.put('/events/:id', auth, adminOnly, updateEvent);
+router.put('/events/:id', auth, adminOnly, upload.single('image'), updateEvent);
 router.delete('/events/:id', auth, adminOnly, deleteEvent);
 router.get('/bookings', auth, adminOnly, getAllBookings);
 router.get('/users', auth, adminOnly, getAllUsers);

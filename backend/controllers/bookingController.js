@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
+const User = require('../models/User');
 const { sendBookingConfirmationEmail } = require('../utils/email');
 
 exports.createBooking = async (req, res, next) => {

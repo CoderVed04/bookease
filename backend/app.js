@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
 const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');
 const bookingRoutes = require('./routes/bookings');
@@ -11,6 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(errorHandler);
+app.use(morgan("dev"));
+app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => res.send('BookEase API Running'));
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const { createBooking, getUserBookings } = require('../controllers/bookingController');
+const { createBooking, getUserBookings, getAllBookings } = require('../controllers/bookingController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const auth = require('../middleware/auth');
