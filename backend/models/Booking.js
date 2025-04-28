@@ -12,7 +12,7 @@ const bookingSchema = new mongoose.Schema({
     required: true,
   },
   seatsBooked: [{
-    type: String,  // Assuming seats are stored as seat numbers or seat IDs
+    type: String,
     required: true,
   }],
   amountPaid: {
