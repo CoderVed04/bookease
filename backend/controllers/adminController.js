@@ -1,48 +1,60 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
 
-exports.addEvent = async (req, res) => {
-  try {
-    const { title, category, description, location, date, time, rows, seatsPerRow } = req.body;
-    let imagePath = req.file ? req.file.path : null;
+const generateSeats = (seatAllocation) => {
+  const seats = [];
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-    if (!rows || !seatsPerRow) {
-      return res.status(400).json({ msg: 'Rows and seatsPerRow are required' });
-    }
+  seatAllocation.forEach(sa => {
+    const seatType = sa.seatType;
+    const rows = sa.rows;
+    const seatsPerRow = sa.seatsPerRow;
+    const price = sa.price;
 
-    // Convert rows (string like 'ABCDE') into array ['A', 'B', 'C', 'D', 'E']
-    const rowArray = rows.split('');
-    const generatedSeats = [];
-
-    rowArray.forEach(row => {
-      for (let num = 1; num <= parseInt(seatsPerRow); num++) {
-        generatedSeats.push({
-          seatNumber: `${row}${num}`,
-          isBooked: false
+    for (let i = 0; i < rows; i++) {
+      const rowLetter = alphabet[i];
+      for (let j = 1; j <= seatsPerRow; j++) {
+        seats.push({
+          seatNumber: `${rowLetter}${j}`,
+          seatType,
+          price
         });
       }
-    });
+    }
+  });
+  return seats;
+};
+
+exports.addEvent = async (req, res, next) => {
+  try {
+    const { seatAllocation, ...eventData } = req.body;
+
+    if (req.file) {
+      eventData.image = req.file.filename; 
+    }
+
+    let parsedSeatAllocation = [];
+    if (typeof seatAllocation === 'string') {
+      parsedSeatAllocation = JSON.parse(seatAllocation);
+    } else {
+      parsedSeatAllocation = seatAllocation;
+    }
+
+    const seats = generateSeats(parsedSeatAllocation);
 
     const event = new Event({
-      title,
-      category,
-      description,
-      location,
-      date,
-      time,
-      image: imagePath,
-      seats: generatedSeats
+      ...eventData,
+      seatAllocation: parsedSeatAllocation,
+      seats
     });
 
     await event.save();
-
-    res.status(201).json({ success: true, event });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    res.status(201).json(event);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
-
 
 exports.updateEvent = async (req, res) => {
   try {
