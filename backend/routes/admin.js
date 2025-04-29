@@ -3,20 +3,10 @@ const { addEvent, updateEvent, deleteEvent, getAllUsers } = require('../controll
 const { getAllBookings } = require('../controllers/bookingController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
-const auth = require('../middleware/auth');
+const {auth, adminOnly} = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
 const User = require('../models/User');
 const router = express.Router();
-
-const adminOnly = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user || !user.isAdmin) return res.status(403).json({ msg: 'Access denied' });
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
 
 router.post(
   '/events',

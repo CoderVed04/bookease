@@ -4,6 +4,7 @@ const User = require('../models/User');
 const generateSeats = (seatAllocation) => {
   const seats = [];
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let globalRowIndex = 0;
 
   seatAllocation.forEach(sa => {
     const seatType = sa.seatType;
@@ -12,7 +13,8 @@ const generateSeats = (seatAllocation) => {
     const price = sa.price;
 
     for (let i = 0; i < rows; i++) {
-      const rowLetter = alphabet[i];
+      const rowLetter = alphabet[globalRowIndex];
+      globalRowIndex++;
       for (let j = 1; j <= seatsPerRow; j++) {
         seats.push({
           seatNumber: `${rowLetter}${j}`,
@@ -59,12 +61,19 @@ exports.addEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res) => {
   try {
     const updateData = req.body;
-    if (req.file) {
-      updateData.image = req.file.path;  // If new image uploaded, update it
+
+    if (typeof updateData.seatAllocation === 'string') {
+      updateData.seatAllocation = JSON.parse(updateData.seatAllocation);
     }
+
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+
     const event = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(event);
   } catch (err) {
+    console.error("Error in updateEvent:", err);
     res.status(500).send('Server error');
   }
 };

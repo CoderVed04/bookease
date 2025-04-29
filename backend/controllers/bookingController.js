@@ -4,19 +4,24 @@ const User = require('../models/User');
 const { sendBookingConfirmationEmail } = require('../utils/email');
 
 exports.createBooking = async (req, res, next) => {
-  const { eventId, seatsBooked, amountPaid, paymentMethod } = req.body;
+  const { eventId, seatsBooked, paymentMethod } = req.body;
 
   try {
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ msg: 'Event not found' });
 
-    // Mark selected seats as booked
-    event.seats = event.seats.map(seat =>
-      seatsBooked.includes(seat.seatNumber) ? { ...seat.toObject(), isBooked: true } : seat
-    );
+    let amountPaid = 0;
+    const updatedSeats = event.seats.map(seat => {
+      if (seatsBooked.includes(seat.seatNumber)) {
+        amountPaid += seat.price;
+        return { ...seat.toObject(), isBooked: true };
+      }
+      return seat;
+    });
+
+    event.seats = updatedSeats;
     await event.save();
 
-    // Create fake transaction ID
     const fakeTransactionId = `TXN_${Date.now()}`;
 
     const booking = new Booking({
@@ -30,7 +35,6 @@ exports.createBooking = async (req, res, next) => {
     });
     await booking.save();
 
-    // Send booking confirmation email
     const user = await User.findById(req.user.id);
     await sendBookingConfirmationEmail(user.email, {
       event: event.title,
@@ -44,6 +48,7 @@ exports.createBooking = async (req, res, next) => {
     next(err);
   }
 };
+
 
 exports.getUserBookings = async (req, res) => {
   try {

@@ -1,4 +1,3 @@
-// models/Event.js
 const mongoose = require('mongoose');
 
 const seatAllocationSchema = new mongoose.Schema({
@@ -45,7 +44,7 @@ const eventSchema = new mongoose.Schema({
     required: true 
   },
   image: { 
-    type: String // Will store the filename or full URL after upload
+    type: String
   },
   seatAllocation: [seatAllocationSchema],
   seats: [

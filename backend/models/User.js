@@ -11,9 +11,14 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  isAdmin: { 
-    type: Boolean, 
-    default: false 
+  role: {
+    type: String,
+    enum: ['User', 'Admin', 'SuperAdmin'],
+    default: 'User'
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
   },
   contactNumber: String,
   createdAt: { 
@@ -22,4 +27,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);  
