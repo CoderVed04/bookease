@@ -2,13 +2,11 @@ const User = require('../models/User');
 const Event = require('../models/Event');
 const Booking = require('../models/Booking');
 
-// Get all users
 exports.getAllUsers = async (req, res) => {
   const users = await User.find({});
   res.json(users);
 };
 
-// Block or delete user
 exports.blockUser = async (req, res) => {
   const userId = req.params.id;
   const user = await User.findById(userId);
@@ -25,19 +23,16 @@ exports.deleteUser = async (req, res) => {
   res.json({ message: 'User deleted successfully' });
 };
 
-// Get all events
 exports.getAllEvents = async (req, res) => {
   const events = await Event.find({});
   res.json(events);
 };
 
-// Get all bookings
 exports.getAllBookings = async (req, res) => {
   const bookings = await Booking.find({}).populate('user').populate('event');
   res.json(bookings);
 };
 
-// Change user role (User <=> Admin)
 exports.updateUserRole = async (req, res) => {
   const { userId, role } = req.body;
 

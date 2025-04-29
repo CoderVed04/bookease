@@ -15,3 +15,22 @@ exports.getEventsByCategory = async (req, res) => {
   const events = await Event.find({ category: req.params.type });
   res.json(events);
 };
+
+exports.searchEvents = async (req, res) => {
+  try {
+    const { query } = req.query;
+    const searchRegex = new RegExp(query, 'i'); // case-insensitive search
+
+    const events = await Event.find({
+      $or: [
+        { title: searchRegex },
+        { location: searchRegex },
+        { category: searchRegex }
+      ]
+    });
+
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
